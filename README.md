@@ -9,3 +9,8 @@ https://developers.google.com/apps-script/guides/services/advanced#enabling_adva
 ### autoamte tasks in vscode
 https://code.visualstudio.com/docs/editor/tasks
 
+### using Google cloud service accounts in google scripts
+https://medium.com/@daubejb/how-to-use-gcp-service-accounts-with-google-apps-script-projects-to-automate-actions-in-g-suite-7020a520bef7
+
+
+
