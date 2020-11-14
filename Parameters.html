@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <base target="_top">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <?!= include('JavaScript'); ?>
+    </head>
+    <body>
+        <div  id="result" class="container">
+            <div class="row">
+                <div class="col-6">
+                    <form id="myForm" onsubmit="handleFormSubmit(this)">
+                        <p class="h4 mb-4 text-center">Mail Merge Parameters</p>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="SHEET_FILE_NAME">Sheet File Name</label>
+                                <input type="text" class="form-control" id="SHEET_FILE_NAME" name="SHEET_FILE_NAME" placeholder="Sheet File Name">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="MAIL_LIST_FILE_NAME">Mail List File Name</label>
+                                <input type="text" class="form-control" id="MAIL_LIST_FILE_NAME" name="MAIL_LIST_FILE_NAME" placeholder="Mail List Fiel Name>">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="TEMPLATE_FILE_NAME">Template File Name</label>
+                                <input type="text" class="form-control" id="TEMPLATE_FILE_NAME" name="TEMPLATE_FILE_NAME" placeholder="Template File Name">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="RESULT_TEMPLATE">Result Template File Name</label>
+                                <input type="text" class="form-control" id="RESULT_TEMPLATE" name="RESULT_TEMPLATE" placeholder="Result Template File Name>">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="SENDER_MAIL">Sender Mail</label>
+                                <input type="email" class="form-control" id="SENDER_MAIL" name="SENDER_MAIL" placeholder="Sender mail">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="SENDER_NAME">Sender Name</label>
+                                <input type="text" class="form-control" id="SENDER_NAME" name="SENDER_NAME" placeholder="Sender Name>">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="SENDER_TITLE">Sender Title</label>
+                                <input type="text" class="form-control" id="SENDER_TITLE" name="SENDER_TITLE" placeholder="Sender title">
+                            </div>
+                            <div class="form-group col-md-6">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="STAKEHOLDERS_NAMES">Stakeholders Names</label>
+                            <textarea rows="2" cols="40" class="form-control" id="STAKEHOLDERS_NAMES" name="STAKEHOLDERS_NAMES" placeholder="Output Folder"> </textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="OUTPUT_FOLDER">Output Folder</label>
+                            <input type="text" class="form-control" id="OUTPUT_FOLDER" name="OUTPUT_FOLDER" placeholder="Output Folder">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="SUBJECT">Subject</label>
+                            <input type="text" class="form-control" id="SUBJECT" name="SUBJECT" placeholder="Mail Subject">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                    </form>
+                </div>
+            </div>      
+        </div>
+    </body>
+    <script>
+        // Prevent forms from submitting.
+
+        function onSuccess(json) {
+          console.log("onSUccess: json:",json);
+          pars = JSON.parse(json);
+
+          console.log("pars:",pars);
+
+          document.getElementById("SHEET_FILE_NAME").value = pars.SHEET_FILE_NAME;
+          document.getElementById("MAIL_LIST_FILE_NAME").value = pars.MAIL_LIST_FILE_NAME;
+          document.getElementById("TEMPLATE_FILE_NAME").value = pars.TEMPLATE_FILE_NAME;
+          document.getElementById("RESULT_TEMPLATE").value = pars.RESULT_TEMPLATE;
+          document.getElementById("OUTPUT_FOLDER").value = pars.OUTPUT_FOLDER;
+          document.getElementById("SUBJECT").value = pars.SUBJECT;
+          document.getElementById("SENDER_MAIL").value = pars.SENDER_MAIL;
+          document.getElementById("SENDER_NAME").value = pars.SENDER_NAME;
+          document.getElementById("SENDER_TITLE").value = pars.SENDER_TITLE
+          document.getElementById("STAKEHOLDERS_NAMES").value = pars.STAKEHOLDERS_NAMES;
+      }
+
+        function preventFormSubmit() {
+            console.log("prevent submit, calling loadSettingsJSON()");
+            google.script.run.withSuccessHandler(onSuccess)
+          .loadSettingsJSON();
+
+
+          var forms = document.querySelectorAll('form');
+          for (var i = 0; i < forms.length; i++) {
+            forms[i].addEventListener('submit', function(event) {
+            event.preventDefault();
+            });
+          }
+        }
+        
+        var pars = {
+            SHEET_FILE_NAME:"",
+            MAIL_LIST_FILE_NAME: "",
+            TEMPLATE_FILE_NAME: "",
+            RESULT_TEMPLATE: "",
+            OUTPUT_FOLDER: "",
+            SUBJECT: "",
+            SENDER_MAIL: "",
+            SENDER_NAME: "",
+            SENDER_TITLE: "",
+            STAKEHOLDERS_NAMES:""
+        }
+            
+        //process form with html return
+        function callback(html) {
+            document.getElementById("result").innerHTML=html;
+        }
+            
+        function handleFormSubmit(formObject) {
+            console.log("calling ProcessFOrm()",formObject);
+            const buttons = document.querySelectorAll('button');
+            for (var i = 0; i < buttons.length; i++) {
+            buttons[i].disabled = true;
+            };
+          
+            
+            //google.script.run.processForm(formObject);
+            //document.getElementById("myForm").reset();
+
+            google.script.run.withSuccessHandler(callback).processForm(formObject);
+        }
+
+        window.addEventListener('load', preventFormSubmit);   
+
+      </script>
+</html>
+
