@@ -1,0 +1,168 @@
+export class Utils {
+    static moveFiles(sourceFileId, targetFolderId) {
+        try {
+            let file = DriveApp.getFileById(sourceFileId);
+            let folder = DriveApp.getFolderById(targetFolderId);
+            file.moveTo(folder);
+        }
+        catch (ex) {
+            Logger.log("Exception moving file.");
+        }
+    }
+    static reCreateFolder(folderName) {
+        var folders = DriveApp.getFoldersByName(folderName);
+        if (folders.hasNext()) {
+            while (folders.hasNext()) {
+                var folder = folders.next();
+                folder.setTrashed(true);
+                break;
+            }
+        }
+        folder = DriveApp.createFolder(folderName);
+        return folder;
+    }
+
+
+    static getCreateFolder(folderName) {
+        var folders = DriveApp.getFoldersByName(folderName);
+        var folder = null;
+        if (folders.hasNext())
+            folder = folders.next();
+        else
+            folder = DriveApp.createFolder(folderName);
+        return folder;
+    }
+
+    static getFileByName(fileName) {
+        var files = DriveApp.getFilesByName(fileName);
+        while (files.hasNext()) {
+            var file = files.next();
+            return file;
+            break;
+        }
+        return null;
+    }
+
+    static async removeFileByName(fileName) {
+        var files = DriveApp.getFilesByName(fileName);
+        if (files.hasNext()) {
+            var file = files.next();
+            file.setTrashed(true);
+        }
+    }
+
+    static writeTextFile(fileName:string, text:string, folder = null){
+        var existing;
+        if (folder == null )
+            existing = DriveApp.getFilesByName(fileName);
+        else
+            existing = folder.getFilesByName(fileName);
+
+        // Does file exist? if (existing.hasNext()) {
+
+        var file = existing.next();
+        
+        // Make sure the file name is exactly the same
+        if (file.getName() === fileName) {
+            file.setTrashed(true);
+        }        
+        folder.createFile(fileName, text, MimeType.PLAIN_TEXT);
+    }
+
+    static createInstance<T>(t: new () => T): T {
+        return new t();
+    }
+
+    static getTextDocByName(fileName) {
+        var text = "";
+        var file = Utils.getFileByName(fileName);
+        if (file != undefined) {
+            var doc = DocumentApp.openById(file.getId());
+            text = doc.getBody().getText();
+        }
+        return text;
+    }
+
+
+
+    //Gets a file given its folder id and fileName
+    static getFileFromFolderName(name: string, folderName: string = "") {
+        var folders;
+        var folder;
+        let files: FileIterator;
+        if (folderName == "") {
+            files = DriveApp.getRootFolder().getFilesByName(name);
+            if (files.hasNext()) {
+                return files.next();
+            }
+        }
+
+        folders = DriveApp.getFoldersByName(folderName);
+        if (folders.hasNext()) {
+            folder = folders.next();
+            files = folder.getFilesByName(name);
+            if (files.hasNext()) {
+                return files.next();
+            }
+        }
+        return null;
+    }
+
+    static getFileFromFolder(folder, name: string) {
+        var files = folder.getFilesByName(name);
+        if (files.hasNext()) {
+            return files.next();
+        }
+        return null;
+    }
+
+    static deleteFiles(fileName:string, folder = null){
+        let files;
+        if ( folder == null )
+            files = DriveApp.getFilesByName(fileName);
+        else
+            files = folder.getFilesByName(fileName);
+
+        while (files.hasNext()) {
+            let file = files.next();
+            file.setTrashed(true);
+        }            
+    }
+
+    static getSheetByName(ssSheet, defaultName: string, name: string) {
+        if (name == defaultName)
+            return ssSheet.getSheetByName(name);
+        else
+            return ssSheet.getSheetByName(defaultName);
+    }
+
+
+    static getJSONFromUrl(aUrl: string): string {
+        var response = UrlFetchApp.fetch(aUrl); // get feed
+        return response.getContentText();
+    }
+
+
+    static saveJSON<T>(collName: string, obj: T) {
+        let json = JSON.stringify(obj);
+        var blob, file, fileSets, obj1;
+
+        fileSets = {
+            title: collName,
+            mimeType: 'application/json'
+        };
+
+        blob = Utilities.newBlob(JSON.stringify(obj), "application/vnd.google-apps.script+json");
+        //DriveApp.Files.insert(fileSets, blob);
+        //file = this.folder.Files.insert(fileSets, blob);
+        Logger.log('JSONFIlesDAL.TS SaveJSON()ID: %s, File size (bytes): %s, type: %s', file.id, file.fileSize, file.mimeType);
+    }
+
+    static getTextFileFromFolder(folder, fileName:string)
+    {
+        let file = Utils.getFileFromFolder(folder,fileName)
+        if ( file != null)
+            return file.getBlob().getDataAsString();
+        return "";
+    }
+}
